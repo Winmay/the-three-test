@@ -24,16 +24,23 @@
             handleChange: function(event){
 
                 var inputValue = parseInt(event.target.value);
-                if(!/(^0$)|(^100$)|(^\d{1,2}$)/.test(inputValue)){
-                    alert('请输入0～100的数字');
+
+                if(!/^[0-9]*$/.test(inputValue))
+                    return
+
+                if(inputValue<0 || inputValue>100)
+                    return
+
+                if(inputValue==''){
                     this.setState ({
                         loadingNum: 0
                     });
-                }else{
-                    this.setState ({
-                        loadingNum: inputValue
-                    });
                 }
+
+
+                this.setState ({
+                    loadingNum: inputValue
+                });
             },
 
             leftDown: function(){
@@ -124,37 +131,33 @@
 
             getInitialState: function(){
                 return {
-                    addTopData: [],
-                    addBottomData: []
+                    adddata: []
                 };
             },
 
             topRefresh: function(){
 
+                //上拉刷新需要把数据覆盖
+                this.state.adddata = [];
                 for(var i=0;i!=10;++i){
-                    this.state.addTopData.push('top======');
+                    this.state.adddata.push('adddata======');
                     this.setState ();
                 };
             },
 
             bottomRefresh: function(){
 
-                for(var j=0;j!=10;++j){
-                    this.state.addBottomData.push('bottom======');
+                for(var i=0;i!=10;++i){
+                    this.state.adddata.push('adddata======');
                     this.setState ();
                 };
             },
 
             render: function() {
-                
-                var topData=[];
-                for(k=0;k<this.state.addTopData.length;++k){
-                    topData.push(<p>{this.state.addTopData[k]}</p>);
-                }
 
-                var bottomData=[];
-                for(m=0;m<this.state.addBottomData.length;++m){
-                    bottomData.push(<p>{this.state.addBottomData[m]}</p>);
+                var addDiv=[];
+                for(k=0;k<this.state.adddata.length;++k){
+                    addDiv.push(<p>{this.state.adddata[k]}</p>);
                 }
 
                 return (
@@ -162,11 +165,7 @@
                         <button onClick={this.topRefresh}>上拉按钮</button>
                         
                         <div>
-                            {topData}
-                            <p>content======</p>
-                            <p>content======</p>
-                            <p>content======</p>
-                            {bottomData}
+                            {addDiv}
                         </div>
                         <button onClick={this.bottomRefresh}>下拉按钮</button>
                     </div>
@@ -182,11 +181,6 @@
 
         var TodosLI = React.createClass ({
 
-            getInitialState: function(){
-                return {
-                };
-            },
-
             removeData: function(){
                 this.props.removeButton(this.props.deleNum);
             },
@@ -195,9 +189,9 @@
                 
 
                 if(event.target.checked){
-                    this.props.checkselect(this.props.deleNum,event.target.checked,'line-through');
+                    this.props.checkselect(this.props.deleNum,event.target.checked);
                 }else{
-                    this.props.checkselect(this.props.deleNum,event.target.checked,'none');
+                    this.props.checkselect(this.props.deleNum,event.target.checked);
                 }
                 
             },
@@ -220,8 +214,15 @@
                     border:'none'
                 }
 
+                var display;
+                if(this.props.checkedall){
+                    display = 'line-through'
+                }else{
+                    display = 'none'
+                }
+
                 var labelStyle = {
-                    textDecoration:this.props.checkline
+                    textDecoration:display
                 }
 
                 return (
@@ -242,9 +243,7 @@
             getInitialState: function(){
                 return {
                     dataLi:[],
-                    displayLi:'none',
-                    value1:null,
-                    checked: false
+                    value1:null
                 };
             },
 
@@ -253,11 +252,9 @@
                 if(event.keyCode == '13'){
                     if(event.target.value != ''){
                         var addlistData = event.target.value;
-                        this.state.dataLi.push({inputData:addlistData,checkData:false,checkStyle:'none'});
+                        this.state.dataLi.push({inputData:addlistData,checkData:false});
                         this.setState({
-                            displayLi:'block',
-                            value1:'',
-                            checked: false
+                            value1:''
                         });
                     }
                 }else{
@@ -268,12 +265,6 @@
             },
 
             removeLabel: function(indexDel) {
-
-                if((this.state.dataLi.length == 1) && ((indexDel-1)<0)){
-                    this.setState({
-                        displayLi:'none'
-                    });
-                }
                 this.state.dataLi.splice(indexDel,1);
 
                 this.setState();
@@ -282,49 +273,23 @@
 
             handleSelect: function(event){
 
-                this.setState({
-                    checked: event.target.checked
-                });
-
                 if(event.target.checked){
                     for(var j=0;j!=this.state.dataLi.length;++j){
                         this.state.dataLi[j].checkData = true;
-                        this.state.dataLi[j].checkStyle = 'line-through';
                     }
 
                     this.setState(); 
                 }else{
                     for(var j=0;j!=this.state.dataLi.length;++j){
                         this.state.dataLi[j].checkData = false;
-                        this.state.dataLi[j].checkStyle = 'none';
                     }
                     this.setState(); 
                 }
             },
 
-            onchecked: function(checkNum,checkState,lineStyle) {
+            onchecked: function(checkNum,checkState) {
                 this.state.dataLi[checkNum].checkData = checkState;
-                this.state.dataLi[checkNum].checkStyle = lineStyle;
-                //this.setState();
-
-                    if(!this.state.dataLi[checkNum].checkData){
-                        this.setState({
-                            checked: false
-                        });
-                    }else{
-                        for(var i=0;i!=this.state.dataLi.length;++i){
-                            if(!this.state.dataLi[i].checkData){
-                                this.setState({
-                                    checked: false
-                                });
-                                return false;
-                            }else{
-                                this.setState({
-                                    checked: true
-                                });
-                            }
-                        }
-                    }
+                this.setState();
             },
 
             deleAll: function(){
@@ -334,24 +299,17 @@
                         newsData.push(this.state.dataLi[cl]);
                     }
                 }
-
-                if(newsData.length==0){
-                    this.setState({
-                        displayLi:'none',
-                        dataLi:newsData
-                    });
-                }else{
-                    this.setState({
-                        dataLi:newsData
-                    });
-                }
+                this.setState({
+                    dataLi:newsData
+                });
+                
             },
 
             render: function() {
 
                 var labelData=[];
                 for(var d=0;d!=this.state.dataLi.length;++d){
-                    labelData.push(<TodosLI textLabel={this.state.dataLi[d].inputData} deleNum={d} removeButton={this.removeLabel} checkedall={this.state.dataLi[d].checkData} checkselect={this.onchecked} checkline={this.state.dataLi[d].checkStyle} />);
+                    labelData.push(<TodosLI textLabel={this.state.dataLi[d].inputData} deleNum={d} removeButton={this.removeLabel} checkedall={this.state.dataLi[d].checkData} checkselect={this.onchecked} />);
                 }
 
                 var clearData=[];
@@ -362,6 +320,21 @@
                 }
                 var clearNum = clearData.length;
                 var existNum = labelData.length-clearNum;
+
+
+
+                var checkDiv=[]
+                for(var i=0;i!=this.state.dataLi.length;++i){
+                    if(this.state.dataLi[i].checkData){
+                        checkDiv.push(this.state.dataLi[i].checkData);
+                    }
+                }
+
+                if(checkDiv.length==this.state.dataLi.length){
+                    var selectAll = <input type='checkbox' onChange={this.handleSelect} checked={true} />
+                }else{
+                    var selectAll = <input type='checkbox' onChange={this.handleSelect} checked={false} />
+                }
                 
                 var bodyStyle = {
                     width:'480px',
@@ -424,12 +397,19 @@
                     display:'none'
                 }
 
+                var display;
+                if(this.state.dataLi.length!=0){
+                    display='block';  
+                }else{
+                    display='none';
+                }
+
                 var sectionStyle ={
-                    display:this.state.displayLi
+                    display:display
                 }
 
                 var footerStyle ={
-                    display:this.state.displayLi,
+                    display:display,
                     margin:'0 -20px -20px -20px',
                     overflow:'hidden',
                     color:'#555',
@@ -439,6 +419,7 @@
                     lineHeight:'37px',
                     borderRadius:'0 0 5px 5px'
                 }
+                    
 
                 return (
                     <div style={bodyStyle}>
@@ -448,7 +429,7 @@
                         </div>
                         
                         <div style={sectionStyle}>
-                            <input type='checkbox' onChange={this.handleSelect} checked={this.state.checked} />
+                            {selectAll}
                             <label>Mark all as complete</label>
                             <ul style={ulStyle}>
                                 {labelData}
