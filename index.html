@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <script src="react.js"></script>
+    <script src="JSXTransformer.js"></script>
+  </head>
+  <body>
+    <div id="example"></div>
+    <script type="text/jsx">
+        /*
+        *#建立一个0到100的进度条
+        *《 【输入框】 》
+        *进度条
+        */
+        var LoadingBar = React.createClass ({
+
+            getInitialState: function(){
+                return {
+                    loadingNum: 0
+                };
+            },
+
+            handleChange: function(event){
+
+                var inputValue = parseInt(event.target.value);
+                if(!/(^0$)|(^100$)|(^\d{1,2}$)/.test(inputValue)){
+                    alert('请输入0～100的数字');
+                    this.setState ({
+                        loadingNum: 0
+                    });
+                }else{
+                    this.setState ({
+                        loadingNum: inputValue
+                    });
+                }
+            },
+
+            leftDown: function(){
+
+                if(this.state.loadingNum <= 0){
+                    this.setState ({
+                        loadingNum: 0
+                    });
+                }else{
+                    this.setState ({
+                        loadingNum: this.state.loadingNum - 1
+                    });
+                }
+            },
+
+
+            rightUp: function(){
+
+                if(this.state.loadingNum >= 100){
+                    this.setState ({
+                        loadingNum: 100
+                    });
+                }else{
+                    this.setState ({
+                        loadingNum: this.state.loadingNum + 1
+                    });
+                }
+            },
+
+            render: function() {
+                
+                var loadingChange = this.state.loadingNum + "%";
+
+                //console.log(this.state.loadingNum);
+                
+                var posiDiv ={
+                    height:'100px'
+                }
+
+                var divStyle = {
+                    border:'1px solid #ccc',
+                    width: '98%',
+                    height: '30px',
+                    textAlign: 'center',
+                    margin: '10px auto',
+                    lineHeight: '30px',
+                    color: '#000',
+                    fontSize: '16px',
+                    position: 'absolute'
+                }
+
+                var perDiv = {
+                    width: loadingChange,
+                    height: '30px',
+                    backgroundColor: '#DDB8B8',
+                    position: 'absolute'
+                }
+
+                var spanStyle ={
+                    position: 'absolute'
+                }
+
+                return (
+                    <div style={posiDiv}>
+                        <button onClick={this.leftDown}>《</button>
+                        <input type="text" onChange={this.handleChange} value={this.state.loadingNum} />
+                        <button onClick={this.rightUp}>》</button>
+                        <div style={divStyle}>
+                            <div style={perDiv}></div>
+                            <span style={spanStyle}>{loadingChange}</span>
+                        </div>
+                    </div>
+                );
+            }
+
+        });
+
+        /*
+        *#建立一个上拉刷新，下拉更多的列表
+        *【上拉按钮】
+        *＝＝＝
+        *＝＝＝
+        *＝＝＝
+        *【下拉按钮】
+        */
+
+        var Refresh = React.createClass ({
+
+            getInitialState: function(){
+                return {
+                    addTopData: [],
+                    addBottomData: []
+                };
+            },
+
+            topRefresh: function(){
+
+                for(var i=0;i!=10;++i){
+                    this.state.addTopData.push('top======');
+                    this.setState ();
+                };
+            },
+
+            bottomRefresh: function(){
+
+                for(var j=0;j!=10;++j){
+                    this.state.addBottomData.push('bottom======');
+                    this.setState ();
+                };
+            },
+
+            render: function() {
+                
+                var topData=[];
+                for(k=0;k<this.state.addTopData.length;++k){
+                    topData.push(<p>{this.state.addTopData[k]}</p>);
+                }
+
+                var bottomData=[];
+                for(m=0;m<this.state.addBottomData.length;++m){
+                    bottomData.push(<p>{this.state.addBottomData[m]}</p>);
+                }
+
+                return (
+                    <div>
+                        <button onClick={this.topRefresh}>上拉按钮</button>
+                        
+                        <div>
+                            {topData}
+                            <p>content======</p>
+                            <p>content======</p>
+                            <p>content======</p>
+                            {bottomData}
+                        </div>
+                        <button onClick={this.bottomRefresh}>下拉按钮</button>
+                    </div>
+                );
+            }
+
+        });
+
+        /*
+        *#To综合实验
+        *http://www.css88.com/doc/backbone/examples/todos/index.html
+        */
+
+        var TodosLI = React.createClass ({
+
+            getInitialState: function(){
+                return {
+                };
+            },
+
+            removeData: function(){
+                this.props.removeButton(this.props.deleNum);
+            },
+
+            selectthis: function(event) {
+                
+
+                if(event.target.checked){
+                    this.props.checkselect(this.props.deleNum,event.target.checked,'line-through');
+                }else{
+                    this.props.checkselect(this.props.deleNum,event.target.checked,'none');
+                }
+                
+            },
+
+            render: function() {
+
+                var liStyle = {
+                    padding:'18px 20px 18px 0',
+                    position:'relative',
+                    fontSize:'24px'
+                }
+
+                var delStyle = {
+                    position: 'absolute',
+                    right:'5px',
+                    top:'20px',
+                    width:'20px',
+                    height:'20px',
+                    borderRadius:'100%',
+                    border:'none'
+                }
+
+                var labelStyle = {
+                    textDecoration:this.props.checkline
+                }
+
+                return (
+                    <li style={liStyle}>
+                        <div>
+                            <input type="checkbox" onChange={this.selectthis} checked={this.props.checkedall} />
+                            <label style={labelStyle}>{this.props.textLabel}</label>
+                            <button style={delStyle} onClick={this.removeData}>✕</button>
+                        </div>
+                    </li>
+                );
+            }
+
+        });
+
+        var Todos = React.createClass ({
+
+            getInitialState: function(){
+                return {
+                    dataLi:[],
+                    displayLi:'none',
+                    value1:null,
+                    checked: false
+                };
+            },
+
+            submitLabel: function(event){
+
+                if(event.keyCode == '13'){
+                    if(event.target.value != ''){
+                        var addlistData = event.target.value;
+                        this.state.dataLi.push({inputData:addlistData,checkData:false,checkStyle:'none'});
+                        this.setState({
+                            displayLi:'block',
+                            value1:'',
+                            checked: false
+                        });
+                    }
+                }else{
+                    this.setState({
+                        value1:null
+                    });
+                }
+            },
+
+            removeLabel: function(indexDel) {
+
+                if((this.state.dataLi.length == 1) && ((indexDel-1)<0)){
+                    this.setState({
+                        displayLi:'none'
+                    });
+                }
+                this.state.dataLi.splice(indexDel,1);
+
+                this.setState();
+                
+            },
+
+            handleSelect: function(event){
+
+                this.setState({
+                    checked: event.target.checked
+                });
+
+                if(event.target.checked){
+                    for(var j=0;j!=this.state.dataLi.length;++j){
+                        this.state.dataLi[j].checkData = true;
+                        this.state.dataLi[j].checkStyle = 'line-through';
+                    }
+
+                    this.setState(); 
+                }else{
+                    for(var j=0;j!=this.state.dataLi.length;++j){
+                        this.state.dataLi[j].checkData = false;
+                        this.state.dataLi[j].checkStyle = 'none';
+                    }
+                    this.setState(); 
+                }
+            },
+
+            onchecked: function(checkNum,checkState,lineStyle) {
+                this.state.dataLi[checkNum].checkData = checkState;
+                this.state.dataLi[checkNum].checkStyle = lineStyle;
+                //this.setState();
+
+                    if(!this.state.dataLi[checkNum].checkData){
+                        this.setState({
+                            checked: false
+                        });
+                    }else{
+                        for(var i=0;i!=this.state.dataLi.length;++i){
+                            if(!this.state.dataLi[i].checkData){
+                                this.setState({
+                                    checked: false
+                                });
+                                return false;
+                            }else{
+                                this.setState({
+                                    checked: true
+                                });
+                            }
+                        }
+                    }
+            },
+
+            deleAll: function(){
+                var newsData=[];
+                for(var cl=0;cl!=this.state.dataLi.length;++cl){
+                    if(!this.state.dataLi[cl].checkData){
+                        newsData.push(this.state.dataLi[cl]);
+                    }
+                }
+
+                if(newsData.length==0){
+                    this.setState({
+                        displayLi:'none',
+                        dataLi:newsData
+                    });
+                }else{
+                    this.setState({
+                        dataLi:newsData
+                    });
+                }
+            },
+
+            render: function() {
+
+                var labelData=[];
+                for(var d=0;d!=this.state.dataLi.length;++d){
+                    labelData.push(<TodosLI textLabel={this.state.dataLi[d].inputData} deleNum={d} removeButton={this.removeLabel} checkedall={this.state.dataLi[d].checkData} checkselect={this.onchecked} checkline={this.state.dataLi[d].checkStyle} />);
+                }
+
+                var clearData=[];
+                for(var c=0;c!=this.state.dataLi.length;++c){
+                    if(this.state.dataLi[c].checkData){
+                        clearData.push(this.state.dataLi[c].checkData);
+                    }
+                }
+                var clearNum = clearData.length;
+                var existNum = labelData.length-clearNum;
+                
+                var bodyStyle = {
+                    width:'480px',
+                    backgroundColor: '#F9ECEC',
+                    padding: '20px',
+                    borderRadius: '0 0 5px 5px',
+                    boxShadow:'rgba(0,0,0,0.2) 0 2px 6px 0',
+                    color: '#333',
+                    lineHeight: '1.4em',
+                    fontSize:'14px',
+                    margin:'0 auto'
+                }
+
+                var headerStyle ={
+                    textAlign:'center',
+                    display:'block'
+                }
+
+                var hiStyle ={
+                    fontSize:'36px',
+                    fontWeight: 'bold',
+                    textAlign:'center',
+                    padding:'0 0 10px 0'
+                }
+
+                var inputStyle ={
+                    width: '466px',
+                    fontSize:'24px',
+                    outline:'none',
+                    padding:'6px',
+                    border:'1px solid #999',
+                    boxShadow:'rgba(0, 0, 0, 0.2) 0 1px 2px 0 inset'
+                }
+
+                var ulStyle = {
+                    margin:'10px 0',
+                    padding:'0',
+                    listStyle:'none'
+                }
+
+                var delAllStyle = {
+                    float:'right',
+                    lineHeight:'20px',
+                    textDecoration:'none',
+                    background:'rgba(0, 0, 0, 0.1)',
+                    color: '#555',
+                    fontSize:'11px',
+                    margin:'8px 0',
+                    padding:'0 10px 1px',
+                    borderRadius:'12px',
+                    border:'none',
+                    boxShadow:'rgba(0, 0, 0, 0.2) 0 -1px 0 0'
+                }
+
+                var bStyle = {
+                    fontWeight:'bold'
+                }
+
+                var subStyle = {
+                    display:'none'
+                }
+
+                var sectionStyle ={
+                    display:this.state.displayLi
+                }
+
+                var footerStyle ={
+                    display:this.state.displayLi,
+                    margin:'0 -20px -20px -20px',
+                    overflow:'hidden',
+                    color:'#555',
+                    backgroundColor:'#f4fce8',
+                    borderTop:'1px solid #edexed',
+                    padding:'0 20px',
+                    lineHeight:'37px',
+                    borderRadius:'0 0 5px 5px'
+                }
+
+                return (
+                    <div style={bodyStyle}>
+                        <div style={headerStyle}>
+                            <h1 style={hiStyle}>Todos</h1>
+                            <input style={inputStyle} type="text" placeholder='What needs to be done?' value={this.state.value1} onKeyDown={this.submitLabel} />
+                        </div>
+                        
+                        <div style={sectionStyle}>
+                            <input type='checkbox' onChange={this.handleSelect} checked={this.state.checked} />
+                            <label>Mark all as complete</label>
+                            <ul style={ulStyle}>
+                                {labelData}
+                            </ul>
+                        </div>
+
+                        <div style={footerStyle}>
+                            <button style={delAllStyle} onClick={this.deleAll}>Clear {clearNum} completed item</button>
+                            <div><b style={bStyle}>{existNum}</b> items left</div>
+                        </div>
+                    </div>
+                );
+            }
+
+        });
+
+        React.render(
+            <div>
+                <br/>
+                <div>/***************练习1***************/</div>
+                <br/>
+                <LoadingBar />
+                <br/>
+                <div>/***************练习2***************/</div>
+                <br/>
+                <Refresh />
+                <br/>
+                <div>/***************练习3***************/</div>
+                <br/>
+                <Todos />
+            </div>,
+            document.getElementById('example')
+        );
+    </script>
+  </body>
+</html>
